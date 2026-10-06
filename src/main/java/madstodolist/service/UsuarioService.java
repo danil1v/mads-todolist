@@ -44,17 +44,29 @@ public class UsuarioService {
     @Transactional
     public UsuarioData registrar(UsuarioData usuario) {
         Optional<Usuario> usuarioBD = usuarioRepository.findByEmail(usuario.getEmail());
-        if (usuarioBD.isPresent())
+        if (usuarioBD.isPresent()) {
             throw new UsuarioServiceException("El usuario " + usuario.getEmail() + " ya está registrado");
-        else if (usuario.getEmail() == null)
+        } else if (usuario.getEmail() == null) {
             throw new UsuarioServiceException("El usuario no tiene email");
-        else if (usuario.getPassword() == null)
+        } else if (usuario.getPassword() == null) {
             throw new UsuarioServiceException("El usuario no tiene password");
-        else {
+        } else {
+            if (usuario.getAdmin() != null && usuario.getAdmin()) {
+                if (existeAdmin()) {
+                    throw new UsuarioServiceException("Ya existe un administrador");
+                }
+            } else {
+                usuario.setAdmin(false);
+            }
             Usuario usuarioNuevo = modelMapper.map(usuario, Usuario.class);
             usuarioNuevo = usuarioRepository.save(usuarioNuevo);
             return modelMapper.map(usuarioNuevo, UsuarioData.class);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public boolean existeAdmin() {
+        return usuarioRepository.existsByAdmin(true);
     }
 
     @Transactional(readOnly = true)
