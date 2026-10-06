@@ -57,4 +57,37 @@ public class UsuarioRegistradosWebTest {
                         containsString("pepe.perez@gmail.com")
                 )));
     }
+
+    @Test
+    public void getDescripcionUsuarioDevuelveDetallesDelUsuario() throws Exception {
+        // GIVEN
+        UsuarioData ana = new UsuarioData();
+        ana.setId(1L);
+        ana.setNombre("Ana García");
+        ana.setEmail("ana.garcia@gmail.com");
+        // No añadimos la contraseña, pero nos aseguramos que si estuviera no se mostraría
+
+        when(managerUserSession.usuarioLogeado()).thenReturn(null);
+        when(usuarioService.findById(1L)).thenReturn(ana);
+
+        // WHEN, THEN
+        this.mockMvc.perform(get("/registrados/1"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(allOf(
+                        containsString("Detalles del usuario"),
+                        containsString("Ana García"),
+                        containsString("ana.garcia@gmail.com")
+                )));
+    }
+
+    @Test
+    public void getDescripcionUsuarioInexistenteDevuelve404() throws Exception {
+        // GIVEN
+        when(managerUserSession.usuarioLogeado()).thenReturn(null);
+        when(usuarioService.findById(999L)).thenReturn(null);
+
+        // WHEN, THEN
+        this.mockMvc.perform(get("/registrados/999"))
+                .andExpect(status().isNotFound());
+    }
 }
