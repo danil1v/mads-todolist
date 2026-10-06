@@ -169,4 +169,47 @@ public class UsuarioServiceTest {
         assertThat(usuarios).hasSize(1);
         assertThat(usuarios.get(0).getEmail()).isEqualTo("user@ua");
     }
+
+    @Test
+    public void servicioRegistroAdmin() {
+        // GIVEN
+        // No hay administrador registrado inicialmente
+        assertThat(usuarioService.existeAdmin()).isFalse();
+
+        // WHEN
+        // Registramos un usuario como administrador
+        UsuarioData usuario = new UsuarioData();
+        usuario.setEmail("admin@ua");
+        usuario.setPassword("123");
+        usuario.setAdmin(true);
+        usuarioService.registrar(usuario);
+
+        // THEN
+        // El administrador se registra correctamente
+        assertThat(usuarioService.existeAdmin()).isTrue();
+        UsuarioData adminBD = usuarioService.findByEmail("admin@ua");
+        assertThat(adminBD.getAdmin()).isTrue();
+    }
+
+    @Test
+    public void servicioRegistroSegundoAdminLanzaExcepcion() {
+        // GIVEN
+        // Un administrador ya registrado
+        UsuarioData admin = new UsuarioData();
+        admin.setEmail("admin@ua");
+        admin.setPassword("123");
+        admin.setAdmin(true);
+        usuarioService.registrar(admin);
+
+        // WHEN, THEN
+        // Intentar registrar un segundo administrador lanza excepción
+        UsuarioData admin2 = new UsuarioData();
+        admin2.setEmail("admin2@ua");
+        admin2.setPassword("123");
+        admin2.setAdmin(true);
+
+        Assertions.assertThrows(UsuarioServiceException.class, () -> {
+            usuarioService.registrar(admin2);
+        });
+    }
 }
