@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -92,5 +93,50 @@ public class UsuarioWebTest {
                         .param("eMail","ana.garcia@gmail.com")
                         .param("password","000"))
                 .andExpect(content().string(containsString("Contraseña incorrecta")));
+    }
+
+    @Test
+    public void loginAdminRedirigeAListadoUsuarios() throws Exception {
+        // GIVEN
+        // Moqueamos para que el usuario sea administrador
+        UsuarioData admin = new UsuarioData();
+        admin.setNombre("Admin");
+        admin.setId(1L);
+        admin.setAdmin(true);
+
+        when(usuarioService.login("admin@gmail.com", "12345678"))
+                .thenReturn(UsuarioService.LoginStatus.LOGIN_OK);
+        when(usuarioService.findByEmail("admin@gmail.com"))
+                .thenReturn(admin);
+
+        // WHEN, THEN
+        // El administrador es redirigido a /registrados
+        this.mockMvc.perform(post("/login")
+                        .param("eMail", "admin@gmail.com")
+                        .param("password", "12345678"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/registrados"));
+    }
+
+    @Test
+    public void formularioRegistroMuestraCheckboxSiNoHayAdmin() throws Exception {
+        // GIVEN
+        when(usuarioService.existeAdmin()).thenReturn(false);
+
+        // WHEN, THEN
+        this.mockMvc.perform(get("/registro"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Registrarse como administrador")));
+    }
+
+    @Test
+    public void formularioRegistroNoMuestraCheckboxSiHayAdmin() throws Exception {
+        // GIVEN
+        when(usuarioService.existeAdmin()).thenReturn(true);
+
+        // WHEN, THEN
+        this.mockMvc.perform(get("/registro"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.not(containsString("Registrarse como administrador"))));
     }
 }
