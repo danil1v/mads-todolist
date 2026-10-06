@@ -1,6 +1,7 @@
 package madstodolist.controller;
 
 import madstodolist.authentication.ManagerUserSession;
+import madstodolist.controller.exception.UsuarioNoAutorizadoException;
 import madstodolist.controller.exception.UsuarioNotFoundException;
 import madstodolist.dto.UsuarioData;
 import madstodolist.service.UsuarioService;
@@ -21,13 +22,22 @@ public class UsuarioController {
     @Autowired
     ManagerUserSession managerUserSession;
 
+    private UsuarioData comprobarAdministrador() {
+        Long idUsuarioLogeado = managerUserSession.usuarioLogeado();
+        if (idUsuarioLogeado == null) {
+            throw new UsuarioNoAutorizadoException();
+        }
+        UsuarioData usuario = usuarioService.findById(idUsuarioLogeado);
+        if (usuario == null || usuario.getAdmin() == null || !usuario.getAdmin()) {
+            throw new UsuarioNoAutorizadoException();
+        }
+        return usuario;
+    }
+
     @GetMapping("/registrados")
     public String listadoUsuarios(Model model) {
-        Long idUsuarioLogeado = managerUserSession.usuarioLogeado();
-        if (idUsuarioLogeado != null) {
-            UsuarioData usuario = usuarioService.findById(idUsuarioLogeado);
-            model.addAttribute("usuario", usuario);
-        }
+        UsuarioData adminLogeado = comprobarAdministrador();
+        model.addAttribute("usuario", adminLogeado);
 
         List<UsuarioData> usuarios = usuarioService.allUsuarios();
         model.addAttribute("usuarios", usuarios);
@@ -37,11 +47,8 @@ public class UsuarioController {
 
     @GetMapping("/registrados/{id}")
     public String descripcionUsuario(@PathVariable(value="id") Long idUsuario, Model model) {
-        Long idUsuarioLogeado = managerUserSession.usuarioLogeado();
-        if (idUsuarioLogeado != null) {
-            UsuarioData usuarioLogeado = usuarioService.findById(idUsuarioLogeado);
-            model.addAttribute("usuario", usuarioLogeado);
-        }
+        UsuarioData adminLogeado = comprobarAdministrador();
+        model.addAttribute("usuario", adminLogeado);
 
         UsuarioData usuarioDetalle = usuarioService.findById(idUsuario);
         if (usuarioDetalle == null) {
