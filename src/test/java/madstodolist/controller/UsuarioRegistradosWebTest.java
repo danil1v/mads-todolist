@@ -33,8 +33,12 @@ public class UsuarioRegistradosWebTest {
     private ManagerUserSession managerUserSession;
 
     @Test
-    public void getRegistradosDevuelveListaUsuarios() throws Exception {
+    public void getRegistradosDevuelveListaUsuariosSiEsAdmin() throws Exception {
         // GIVEN
+        UsuarioData admin = new UsuarioData();
+        admin.setId(10L);
+        admin.setAdmin(true);
+
         UsuarioData ana = new UsuarioData();
         ana.setId(1L);
         ana.setNombre("Ana García");
@@ -45,7 +49,8 @@ public class UsuarioRegistradosWebTest {
         pepe.setNombre("Pepe Pérez");
         pepe.setEmail("pepe.perez@gmail.com");
 
-        when(managerUserSession.usuarioLogeado()).thenReturn(null);
+        when(managerUserSession.usuarioLogeado()).thenReturn(10L);
+        when(usuarioService.findById(10L)).thenReturn(admin);
         when(usuarioService.allUsuarios()).thenReturn(Arrays.asList(ana, pepe));
 
         // WHEN, THEN
@@ -59,15 +64,44 @@ public class UsuarioRegistradosWebTest {
     }
 
     @Test
-    public void getDescripcionUsuarioDevuelveDetallesDelUsuario() throws Exception {
+    public void getRegistradosFallaSiNoEsAdmin() throws Exception {
         // GIVEN
+        UsuarioData usuario = new UsuarioData();
+        usuario.setId(1L);
+        usuario.setAdmin(false);
+
+        when(managerUserSession.usuarioLogeado()).thenReturn(1L);
+        when(usuarioService.findById(1L)).thenReturn(usuario);
+
+        // WHEN, THEN
+        this.mockMvc.perform(get("/registrados"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void getRegistradosFallaSiNoEstaLogeado() throws Exception {
+        // GIVEN
+        when(managerUserSession.usuarioLogeado()).thenReturn(null);
+
+        // WHEN, THEN
+        this.mockMvc.perform(get("/registrados"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void getDescripcionUsuarioDevuelveDetallesDelUsuarioSiEsAdmin() throws Exception {
+        // GIVEN
+        UsuarioData admin = new UsuarioData();
+        admin.setId(10L);
+        admin.setAdmin(true);
+
         UsuarioData ana = new UsuarioData();
         ana.setId(1L);
         ana.setNombre("Ana García");
         ana.setEmail("ana.garcia@gmail.com");
-        // No añadimos la contraseña, pero nos aseguramos que si estuviera no se mostraría
 
-        when(managerUserSession.usuarioLogeado()).thenReturn(null);
+        when(managerUserSession.usuarioLogeado()).thenReturn(10L);
+        when(usuarioService.findById(10L)).thenReturn(admin);
         when(usuarioService.findById(1L)).thenReturn(ana);
 
         // WHEN, THEN
@@ -81,9 +115,29 @@ public class UsuarioRegistradosWebTest {
     }
 
     @Test
-    public void getDescripcionUsuarioInexistenteDevuelve404() throws Exception {
+    public void getDescripcionUsuarioFallaSiNoEsAdmin() throws Exception {
         // GIVEN
-        when(managerUserSession.usuarioLogeado()).thenReturn(null);
+        UsuarioData usuario = new UsuarioData();
+        usuario.setId(1L);
+        usuario.setAdmin(false);
+
+        when(managerUserSession.usuarioLogeado()).thenReturn(1L);
+        when(usuarioService.findById(1L)).thenReturn(usuario);
+
+        // WHEN, THEN
+        this.mockMvc.perform(get("/registrados/2"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void getDescripcionUsuarioInexistenteDevuelve404SiEsAdmin() throws Exception {
+        // GIVEN
+        UsuarioData admin = new UsuarioData();
+        admin.setId(10L);
+        admin.setAdmin(true);
+
+        when(managerUserSession.usuarioLogeado()).thenReturn(10L);
+        when(usuarioService.findById(10L)).thenReturn(admin);
         when(usuarioService.findById(999L)).thenReturn(null);
 
         // WHEN, THEN
