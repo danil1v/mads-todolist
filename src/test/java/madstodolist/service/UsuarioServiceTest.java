@@ -153,4 +153,20 @@ public class UsuarioServiceTest {
         assertThat(usuario.getEmail()).isEqualTo("user@ua");
         assertThat(usuario.getNombre()).isEqualTo("Usuario Ejemplo");
     }
+
+    @Test
+    public void servicioConsultaTodosUsuariosDevuelveLista() {
+        // GIVEN
+        // Un usuario en la BD
+        addUsuarioBD();
+
+        // WHEN
+        // recuperamos todos los usuarios
+        java.util.List<UsuarioData> usuarios = usuarioService.allUsuarios();
+
+        // THEN
+        // la lista tiene un elemento y es el correcto
+        assertThat(usuarios).hasSize(1);
+        assertThat(usuarios.get(0).getEmail()).isEqualTo("user@ua");
+    }
 }
