@@ -212,4 +212,53 @@ public class UsuarioServiceTest {
             usuarioService.registrar(admin2);
         });
     }
+
+    @Test
+    public void servicioBloquearUsuario() {
+        // GIVEN
+        // Un usuario en la BD
+        Long usuarioId = addUsuarioBD();
+
+        // WHEN
+        // Bloqueamos al usuario
+        usuarioService.bloquearUsuario(usuarioId);
+
+        // THEN
+        // El usuario está bloqueado
+        UsuarioData usuarioBD = usuarioService.findById(usuarioId);
+        assertThat(usuarioBD.getBloqueado()).isTrue();
+    }
+
+    @Test
+    public void servicioDesbloquearUsuario() {
+        // GIVEN
+        // Un usuario bloqueado en la BD
+        Long usuarioId = addUsuarioBD();
+        usuarioService.bloquearUsuario(usuarioId);
+
+        // WHEN
+        // Desbloqueamos al usuario
+        usuarioService.desbloquearUsuario(usuarioId);
+
+        // THEN
+        // El usuario no está bloqueado
+        UsuarioData usuarioBD = usuarioService.findById(usuarioId);
+        assertThat(usuarioBD.getBloqueado()).isFalse();
+    }
+
+    @Test
+    public void servicioLoginUsuarioBloqueado() {
+        // GIVEN
+        // Un usuario bloqueado en la BD
+        Long usuarioId = addUsuarioBD();
+        usuarioService.bloquearUsuario(usuarioId);
+
+        // WHEN
+        // El usuario intenta hacer login
+        UsuarioService.LoginStatus status = usuarioService.login("user@ua", "123");
+
+        // THEN
+        // El login devuelve USER_BLOCKED
+        assertThat(status).isEqualTo(UsuarioService.LoginStatus.USER_BLOCKED);
+    }
 }

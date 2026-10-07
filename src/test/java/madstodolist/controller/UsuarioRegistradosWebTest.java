@@ -14,9 +14,12 @@ import java.util.Arrays;
 
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -143,5 +146,41 @@ public class UsuarioRegistradosWebTest {
         // WHEN, THEN
         this.mockMvc.perform(get("/registrados/999"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void postBloquearUsuarioRedirigeYLLamaAlServicioSiEsAdmin() throws Exception {
+        // GIVEN
+        UsuarioData admin = new UsuarioData();
+        admin.setId(10L);
+        admin.setAdmin(true);
+
+        when(managerUserSession.usuarioLogeado()).thenReturn(10L);
+        when(usuarioService.findById(10L)).thenReturn(admin);
+
+        // WHEN, THEN
+        this.mockMvc.perform(post("/registrados/1/bloquear"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/registrados"));
+        
+        verify(usuarioService).bloquearUsuario(1L);
+    }
+
+    @Test
+    public void postDesbloquearUsuarioRedirigeYLLamaAlServicioSiEsAdmin() throws Exception {
+        // GIVEN
+        UsuarioData admin = new UsuarioData();
+        admin.setId(10L);
+        admin.setAdmin(true);
+
+        when(managerUserSession.usuarioLogeado()).thenReturn(10L);
+        when(usuarioService.findById(10L)).thenReturn(admin);
+
+        // WHEN, THEN
+        this.mockMvc.perform(post("/registrados/1/desbloquear"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/registrados"));
+        
+        verify(usuarioService).desbloquearUsuario(1L);
     }
 }

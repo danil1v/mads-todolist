@@ -21,6 +21,8 @@
                 <tr>
                     <th>Id</th>
                     <th>Correo electrónico</th>
+                    <th>Estado</th>
+                    <th>Acción</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -28,6 +30,15 @@
                     <td th:text="${u.id}"></td>
                     <td>
                         <a th:href="@{/registrados/{id}(id=${u.id})}" th:text="${u.email}"></a>
+                    </td>
+                    <td th:text="${u.bloqueado != null && u.bloqueado ? 'Bloqueado' : 'Activo'}"></td>
+                    <td>
+                        <form th:if="${u.id != usuario.id && (u.bloqueado == null || !u.bloqueado)}" th:action="@{/registrados/{id}/bloquear(id=${u.id})}" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-warning btn-sm">Bloquear</button>
+                        </form>
+                        <form th:if="${u.id != usuario.id && u.bloqueado != null && u.bloqueado}" th:action="@{/registrados/{id}/desbloquear(id=${u.id})}" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-success btn-sm">Desbloquear</button>
+                        </form>
                     </td>
                 </tr>
                 </tbody>
