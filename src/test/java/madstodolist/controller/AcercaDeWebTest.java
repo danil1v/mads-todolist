@@ -66,7 +66,7 @@ public class AcercaDeWebTest {
         // y el enlace a tareas
         this.mockMvc.perform(get("/about"))
                 .andExpect(content().string(allOf(
-                        containsString("Ana Garcías"),
+                        containsString("Ana García"),
                         containsString("Tareas"),
                         containsString("Cerrar sesión")
                 )));
