@@ -65,4 +65,13 @@ public class EquipoService {
                 .map(usuario -> modelMapper.map(usuario, UsuarioData.class))
                 .collect(Collectors.toList());
     }
+
+    @Transactional(readOnly = true)
+    public List<EquipoData> equiposUsuario(Long idUsuario) {
+        Usuario usuario = usuarioRepository.findById(idUsuario).orElse(null);
+        List<EquipoData> equipos = usuario.getEquipos().stream()
+                .map(e -> modelMapper.map(e, EquipoData.class))
+                .collect(Collectors.toList());
+        return equipos;
+    }
 }
