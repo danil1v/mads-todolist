@@ -81,9 +81,8 @@ public class EquipoService {
         if(usuario == null){
             throw new EquipoServiceException("Usuario " + idUsuario + "no encontrado");
         }
-        List<EquipoData> equipos = usuario.getEquipos().stream()
+        return usuario.getEquipos().stream()
                 .map(e -> modelMapper.map(e, EquipoData.class))
                 .collect(Collectors.toList());
-        return equipos;
     }
 }
