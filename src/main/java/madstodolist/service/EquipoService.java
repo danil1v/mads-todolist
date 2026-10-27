@@ -86,9 +86,13 @@ public class EquipoService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void eliminarUsuarioDeEquipo(Long idEquipo, Long idUsuario){
         Equipo equipo = equipoRepository.findById(idEquipo).orElse(null);
         Usuario usuario = usuarioRepository.findById(idUsuario).orElse(null);
+        if (equipo == null || usuario == null){
+            throw new EquipoServiceException("Equipo o usuario no encontrado");
+        }
         equipo.removeUsuario(usuario);
     }
 }
