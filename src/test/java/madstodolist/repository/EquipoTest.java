@@ -121,4 +121,18 @@ public class EquipoTest {
         // THEN
         assertThat(equipos).hasSize(2);
     }
+
+    @Test
+    @Transactional
+    public void eliminarUsuarioDeEquipoEnModelo() {
+        Equipo equipo = new Equipo("Proyecto 1");
+        Usuario usuario = new Usuario("user@ua");
+        equipo.addUsuario(usuario);
+
+        equipo.removeUsuario(usuario);
+
+        assertThat(equipo.getUsuarios()).doesNotContain(usuario);
+        assertThat(usuario.getEquipos()).doesNotContain(equipo);
+    }
+
 }
