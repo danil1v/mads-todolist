@@ -105,10 +105,37 @@ public class EquipoServiceTest {
                 .isInstanceOf(EquipoServiceException.class);
         assertThatThrownBy(() -> equipoService.equiposUsuario(1L))
                 .isInstanceOf(EquipoServiceException.class);
+        assertThatThrownBy(() -> equipoService.eliminarUsuarioDeEquipo(1L, 1L))
+                .isInstanceOf(EquipoServiceException.class);
 
         // Creamos un equipo pero no un usuario y comprobamos que también se lanza una excepción
         EquipoData equipo = equipoService.crearEquipo("Proyecto 1");
         assertThatThrownBy(() -> equipoService.añadirUsuarioAEquipo(equipo.getId(), 1L))
                 .isInstanceOf(EquipoServiceException.class);
+
     }
+
+    @Test
+    public void eliminarUsuarioDeEquipoEnServicio() {
+        UsuarioData usuario = new UsuarioData();
+        usuario.setEmail("user@ua");
+        usuario.setPassword("123");
+        usuario = usuarioService.registrar(usuario);
+        EquipoData equipo = equipoService.crearEquipo("Proyecto 1");
+        equipoService.añadirUsuarioAEquipo(equipo.getId(), usuario.getId());
+
+        equipoService.eliminarUsuarioDeEquipo(equipo.getId(), usuario.getId());
+
+        java.util.List<UsuarioData> miembros = equipoService.usuariosEquipo(equipo.getId());
+        assertThat(miembros).isEmpty();
+    }
+
+    @Test
+    public void crearEquipoConNombreVacioLanzaExcepcion() {
+        assertThatThrownBy(() -> equipoService.crearEquipo(""))
+                .isInstanceOf(EquipoServiceException.class);
+        assertThatThrownBy(() -> equipoService.crearEquipo(null))
+                .isInstanceOf(EquipoServiceException.class);
+    }
+
 }
