@@ -85,4 +85,10 @@ public class EquipoService {
                 .map(e -> modelMapper.map(e, EquipoData.class))
                 .collect(Collectors.toList());
     }
+
+    public void eliminarUsuarioDeEquipo(Long idEquipo, Long idUsuario){
+        Equipo equipo = equipoRepository.findById(idEquipo).orElse(null);
+        Usuario usuario = usuarioRepository.findById(idUsuario).orElse(null);
+        equipo.removeUsuario(usuario);
+    }
 }
