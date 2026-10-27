@@ -129,4 +129,13 @@ public class EquipoServiceTest {
         java.util.List<UsuarioData> miembros = equipoService.usuariosEquipo(equipo.getId());
         assertThat(miembros).isEmpty();
     }
+
+    @Test
+    public void crearEquipoConNombreVacioLanzaExcepcion() {
+        assertThatThrownBy(() -> equipoService.crearEquipo(""))
+                .isInstanceOf(EquipoServiceException.class);
+        assertThatThrownBy(() -> equipoService.crearEquipo(null))
+                .isInstanceOf(EquipoServiceException.class);
+    }
+
 }
