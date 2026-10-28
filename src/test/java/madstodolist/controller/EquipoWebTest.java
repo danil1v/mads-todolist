@@ -17,8 +17,10 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -92,5 +94,65 @@ public class EquipoWebTest {
 
         mockMvc.perform(get("/equipos/999"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void getFormNuevoEquipoDevuelveHTML() throws Exception {
+        UsuarioData usuario = new UsuarioData();
+        usuario.setId(1L);
+
+        when(managerUserSession.usuarioLogeado()).thenReturn(1L);
+        when(usuarioService.findById(1L)).thenReturn(usuario);
+
+        mockMvc.perform(get("/equipos/nuevo"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("form method=\"post\"")))
+                .andExpect(content().string(containsString("action=\"/equipos/nuevo\"")));
+    }
+
+    @Test
+    public void postNuevoEquipoRedirigeYGuarda() throws Exception {
+        UsuarioData usuario = new UsuarioData();
+        usuario.setId(1L);
+
+        when(managerUserSession.usuarioLogeado()).thenReturn(1L);
+        when(usuarioService.findById(1L)).thenReturn(usuario);
+
+        mockMvc.perform(post("/equipos/nuevo")
+                        .param("nombre", "Proyecto X"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/equipos"));
+
+        verify(equipoService).crearEquipo("Proyecto X");
+    }
+
+    @Test
+    public void postUnirseEquipoRedirigeYVinculaUsuario() throws Exception {
+        UsuarioData usuario = new UsuarioData();
+        usuario.setId(1L);
+
+        when(managerUserSession.usuarioLogeado()).thenReturn(1L);
+        when(usuarioService.findById(1L)).thenReturn(usuario);
+
+        mockMvc.perform(post("/equipos/10/unirse"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/equipos/10"));
+
+        verify(equipoService).añadirUsuarioAEquipo(10L, 1L);
+    }
+
+    @Test
+    public void postSalirEquipoRedirigeYDesvinculaUsuario() throws Exception {
+        UsuarioData usuario = new UsuarioData();
+        usuario.setId(1L);
+
+        when(managerUserSession.usuarioLogeado()).thenReturn(1L);
+        when(usuarioService.findById(1L)).thenReturn(usuario);
+
+        mockMvc.perform(post("/equipos/10/salir"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/equipos/10"));
+
+        verify(equipoService).eliminarUsuarioDeEquipo(10L, 1L);
     }
 }
