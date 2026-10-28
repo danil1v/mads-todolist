@@ -109,12 +109,13 @@ public class EquipoServiceTest {
                 .isInstanceOf(EquipoServiceException.class);
         assertThatThrownBy(() -> equipoService.modificarEquipo(1L, "nuevoNombre"))
                 .isInstanceOf(EquipoServiceException.class);
+        assertThatThrownBy(() -> equipoService.borrarEquipo(1L))
+                .isInstanceOf(EquipoServiceException.class);
 
         // Creamos un equipo pero no un usuario y comprobamos que también se lanza una excepción
         EquipoData equipo = equipoService.crearEquipo("Proyecto 1");
         assertThatThrownBy(() -> equipoService.añadirUsuarioAEquipo(equipo.getId(), 1L))
                 .isInstanceOf(EquipoServiceException.class);
-
     }
 
     @Test

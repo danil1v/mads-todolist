@@ -117,6 +117,9 @@ public class EquipoService {
     @Transactional
     public void borrarEquipo(Long idEquipo) {
         Equipo equipo = equipoRepository.findById(idEquipo).orElse(null);
+        if (equipo == null){
+            throw new EquipoServiceException("Equipo no encontrado");
+        }
         for (Usuario u : new HashSet<>(equipo.getUsuarios())) {
             equipo.removeUsuario(u);
         }
