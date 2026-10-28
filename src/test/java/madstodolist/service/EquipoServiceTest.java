@@ -157,4 +157,20 @@ public class EquipoServiceTest {
         assertThatThrownBy(() -> equipoService.modificarEquipo(equipo.getId(), null))
                 .isInstanceOf(EquipoServiceException.class);
     }
+
+    @Test
+    public void borrarEquipo() {
+        UsuarioData usuario = new UsuarioData();
+        usuario.setEmail("user@ua");
+        usuario.setPassword("123");
+        usuario = usuarioService.registrar(usuario);
+
+        EquipoData equipo = equipoService.crearEquipo("Proyecto a Borrar");
+        equipoService.añadirUsuarioAEquipo(equipo.getId(), usuario.getId());
+
+        equipoService.borrarEquipo(equipo.getId());
+
+        assertThatThrownBy(() -> equipoService.recuperarEquipo(equipo.getId()))
+                .isInstanceOf(EquipoServiceException.class);
+    }
 }
