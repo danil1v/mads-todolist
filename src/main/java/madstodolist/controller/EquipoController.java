@@ -123,6 +123,7 @@ public class EquipoController {
     }
 
     @DeleteMapping("/equipos/{id}")
+    @ResponseBody
     public String borrarEquipo(@PathVariable(value = "id") Long idEquipo) {
         comprobarAdministrador();
         equipoService.borrarEquipo(idEquipo);
