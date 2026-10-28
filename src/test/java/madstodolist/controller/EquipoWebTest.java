@@ -19,8 +19,7 @@ import java.util.Collections;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -154,5 +153,56 @@ public class EquipoWebTest {
                 .andExpect(redirectedUrl("/equipos/10"));
 
         verify(equipoService).eliminarUsuarioDeEquipo(10L, 1L);
+    }
+
+    @Test
+    public void adminAccedeAEditarEquipoYVeFormulario() throws Exception {
+        UsuarioData admin = new UsuarioData();
+        admin.setId(1L);
+        admin.setAdmin(true);
+
+        EquipoData equipo = new EquipoData();
+        equipo.setId(10L);
+        equipo.setNombre("Equipo Alpha");
+
+        when(managerUserSession.usuarioLogeado()).thenReturn(1L);
+        when(usuarioService.findById(1L)).thenReturn(admin);
+        when(equipoService.recuperarEquipo(10L)).thenReturn(equipo);
+
+        mockMvc.perform(get("/equipos/10/editar"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Modificación del equipo: Equipo Alpha")));
+    }
+
+    @Test
+    public void adminEditaEquipoRedirigeYLlamaAlServicio() throws Exception {
+        UsuarioData admin = new UsuarioData();
+        admin.setId(1L);
+        admin.setAdmin(true);
+
+        when(managerUserSession.usuarioLogeado()).thenReturn(1L);
+        when(usuarioService.findById(1L)).thenReturn(admin);
+
+        mockMvc.perform(post("/equipos/10/editar")
+                        .param("nombre", "Equipo Modificado"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/equipos"));
+
+        verify(equipoService).modificarEquipo(10L, "Equipo Modificado");
+    }
+
+    @Test
+    public void adminBorraEquipoConDeleteYLlamaAlServicio() throws Exception {
+        UsuarioData admin = new UsuarioData();
+        admin.setId(1L);
+        admin.setAdmin(true);
+
+        when(managerUserSession.usuarioLogeado()).thenReturn(1L);
+        when(usuarioService.findById(1L)).thenReturn(admin);
+
+        mockMvc.perform(delete("/equipos/10"))
+                .andExpect(status().isOk());
+
+        verify(equipoService).borrarEquipo(10L);
     }
 }

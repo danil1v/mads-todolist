@@ -18,6 +18,7 @@
                 <tr>
                     <th>Id</th>
                     <th>Nombre</th>
+                    <th th:if="${usuario.admin}">Administración</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -26,6 +27,10 @@
                     <td>
                         <a th:href="@{/equipos/{id}(id=${equipo.id})}" th:text="${equipo.nombre}"></a>
                     </td>
+                    <td th:if="${usuario.admin}">
+                        <a class="btn btn-warning btn-sm" th:href="@{/equipos/{id}/editar(id=${equipo.id})}">Editar</a>
+                        <button class="btn btn-danger btn-sm" th:onclick="'delEquipo(\'/equipos/' + ${equipo.id} + '\')'">Borrar</button>
+                    </td>
                 </tr>
                 </tbody>
             </table>
@@ -33,6 +38,16 @@
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+    function delEquipo(urlDelEquipo) {
+        if (confirm('¿Estás seguro/a de que quieres borrar este equipo?')) {
+            fetch(urlDelEquipo, {
+                method: 'DELETE'
+            }).then((res) => location.reload());
+        }
+    }
+</script>
 
 <div th:replace="fragments::javascript"/>
 </body>
