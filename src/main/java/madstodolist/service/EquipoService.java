@@ -105,6 +105,9 @@ public class EquipoService {
             throw new EquipoServiceException("El nombre no puede estar vacío");
         }
         Equipo equipo = equipoRepository.findById(idEquipo).orElse(null);
+        if (equipo == null){
+            throw new EquipoServiceException("Equipo no encontrado");
+        }
         equipo.setNombre(nuevoNombre.trim());
         equipo = equipoRepository.save(equipo);
         return modelMapper.map(equipo, EquipoData.class);
