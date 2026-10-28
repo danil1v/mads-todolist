@@ -79,4 +79,19 @@ public class EquipoController {
         flash.addFlashAttribute("mensaje", "Equipo creado correctamente");
         return "redirect:/equipos";
     }
+    @PostMapping("/equipos/{id}/unirse")
+    public String unirseEquipo(@PathVariable(value = "id") Long idEquipo, RedirectAttributes flash) {
+        UsuarioData usuario = comprobarUsuarioLogeado();
+        equipoService.añadirUsuarioAEquipo(idEquipo, usuario.getId());
+        flash.addFlashAttribute("mensaje", "Te has unido al equipo con éxito");
+        return "redirect:/equipos/" + idEquipo;
+    }
+
+    @PostMapping("/equipos/{id}/salir")
+    public String salirEquipo(@PathVariable(value = "id") Long idEquipo, RedirectAttributes flash) {
+        UsuarioData usuario = comprobarUsuarioLogeado();
+        equipoService.eliminarUsuarioDeEquipo(idEquipo, usuario.getId());
+        flash.addFlashAttribute("mensaje", "Has salido del equipo");
+        return "redirect:/equipos/" + idEquipo;
+    }
 }
