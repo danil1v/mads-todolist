@@ -41,6 +41,10 @@ public class Equipo implements Serializable {
         return nombre;
     }
 
+    public String setNombre(String nombre){
+        return this.nombre = nombre;
+    }
+
     public Set<Usuario> getUsuarios() {
         return usuarios;
     }

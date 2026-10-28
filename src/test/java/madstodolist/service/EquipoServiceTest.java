@@ -138,4 +138,12 @@ public class EquipoServiceTest {
                 .isInstanceOf(EquipoServiceException.class);
     }
 
+    @Test
+    public void modificarNombreEquipo() {
+        EquipoData equipo = equipoService.crearEquipo("Nombre Antiguo");
+        EquipoData modificado = equipoService.modificarEquipo(equipo.getId(), "Nombre Nuevo");
+
+        assertThat(modificado.getNombre()).isEqualTo("Nombre Nuevo");
+        assertThat(equipoService.recuperarEquipo(equipo.getId()).getNombre()).isEqualTo("Nombre Nuevo");
+    }
 }

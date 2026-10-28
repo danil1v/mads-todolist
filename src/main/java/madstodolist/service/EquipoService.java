@@ -98,4 +98,12 @@ public class EquipoService {
         }
         equipo.removeUsuario(usuario);
     }
+
+    @Transactional
+    public EquipoData modificarEquipo(Long idEquipo, String nuevoNombre) {
+        Equipo equipo = equipoRepository.findById(idEquipo).orElse(null);
+        equipo.setNombre(nuevoNombre.trim());
+        equipo = equipoRepository.save(equipo);
+        return modelMapper.map(equipo, EquipoData.class);
+    }
 }
