@@ -107,12 +107,15 @@ public class EquipoServiceTest {
                 .isInstanceOf(EquipoServiceException.class);
         assertThatThrownBy(() -> equipoService.eliminarUsuarioDeEquipo(1L, 1L))
                 .isInstanceOf(EquipoServiceException.class);
+        assertThatThrownBy(() -> equipoService.modificarEquipo(1L, "nuevoNombre"))
+                .isInstanceOf(EquipoServiceException.class);
+        assertThatThrownBy(() -> equipoService.borrarEquipo(1L))
+                .isInstanceOf(EquipoServiceException.class);
 
         // Creamos un equipo pero no un usuario y comprobamos que también se lanza una excepción
         EquipoData equipo = equipoService.crearEquipo("Proyecto 1");
         assertThatThrownBy(() -> equipoService.añadirUsuarioAEquipo(equipo.getId(), 1L))
                 .isInstanceOf(EquipoServiceException.class);
-
     }
 
     @Test
@@ -138,4 +141,37 @@ public class EquipoServiceTest {
                 .isInstanceOf(EquipoServiceException.class);
     }
 
+    @Test
+    public void modificarNombreEquipo() {
+        EquipoData equipo = equipoService.crearEquipo("Nombre Antiguo");
+        EquipoData modificado = equipoService.modificarEquipo(equipo.getId(), "Nombre Nuevo");
+
+        assertThat(modificado.getNombre()).isEqualTo("Nombre Nuevo");
+        assertThat(equipoService.recuperarEquipo(equipo.getId()).getNombre()).isEqualTo("Nombre Nuevo");
+    }
+
+    @Test
+    public void modificarEquipoConNombreVacioLanzaExcepcion() {
+        EquipoData equipo = equipoService.crearEquipo("Equipo con nombre");
+        assertThatThrownBy(() -> equipoService.modificarEquipo(equipo.getId(), ""))
+                .isInstanceOf(EquipoServiceException.class);
+        assertThatThrownBy(() -> equipoService.modificarEquipo(equipo.getId(), null))
+                .isInstanceOf(EquipoServiceException.class);
+    }
+
+    @Test
+    public void borrarEquipo() {
+        UsuarioData usuario = new UsuarioData();
+        usuario.setEmail("user@ua");
+        usuario.setPassword("123");
+        usuario = usuarioService.registrar(usuario);
+
+        EquipoData equipo = equipoService.crearEquipo("Proyecto a Borrar");
+        equipoService.añadirUsuarioAEquipo(equipo.getId(), usuario.getId());
+
+        equipoService.borrarEquipo(equipo.getId());
+
+        assertThatThrownBy(() -> equipoService.recuperarEquipo(equipo.getId()))
+                .isInstanceOf(EquipoServiceException.class);
+    }
 }

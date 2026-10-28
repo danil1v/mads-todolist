@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -97,5 +98,31 @@ public class EquipoService {
             throw new EquipoServiceException("Equipo o usuario no encontrado");
         }
         equipo.removeUsuario(usuario);
+    }
+
+    @Transactional
+    public EquipoData modificarEquipo(Long idEquipo, String nuevoNombre) {
+        if (nuevoNombre == null || nuevoNombre.trim().isEmpty()) {
+            throw new EquipoServiceException("El nombre no puede estar vacío");
+        }
+        Equipo equipo = equipoRepository.findById(idEquipo).orElse(null);
+        if (equipo == null){
+            throw new EquipoServiceException("Equipo no encontrado");
+        }
+        equipo.setNombre(nuevoNombre.trim());
+        equipo = equipoRepository.save(equipo);
+        return modelMapper.map(equipo, EquipoData.class);
+    }
+
+    @Transactional
+    public void borrarEquipo(Long idEquipo) {
+        Equipo equipo = equipoRepository.findById(idEquipo).orElse(null);
+        if (equipo == null){
+            throw new EquipoServiceException("Equipo no encontrado");
+        }
+        for (Usuario u : new HashSet<>(equipo.getUsuarios())) {
+            equipo.removeUsuario(u);
+        }
+        equipoRepository.delete(equipo);
     }
 }
